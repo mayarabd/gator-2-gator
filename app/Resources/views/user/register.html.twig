@@ -1,37 +1,44 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="container">
+    <div class="container form-container">
         <div class="row">
             <div class="col-xs-12">
-                <h1>Register!</h1>
+
+                <h1>Register</h1>
 
                 {{ form_start(form) }}
                 {{ form_row(form.username) }}
-                {{ form_row(form.email) }}
+                {{ form_row(form.email)}}
                 {{ form_row(form.plainPassword.first, {
                     'label': 'Password'
                 }) }}
+
                 {{ form_row(form.plainPassword.second, {
                     'label': 'Repeat Password'
                 }) }}
+
                 <a href="https://termsfeed.com/terms-service/2f805086c3002ea1b07084f032c3bc5e">Terms of service</a>
-                {{ form_row(form.termsAccepted) }}
+                {{ form_row(form.IHaveReadAndAcceptTheTermsOfService) }}
 
-                <a href="http://sfsuse.com/~sp17g05/classProject/web/">cancel</a>
+                <p><a href="https://termsfeed.com/privacy-policy/c455b06cbdd957a654630e5cd5ef93b6">Privacy Policy</a></p>
 
-                <button type="submit" class="btn btn-primary" formnovalidate>
+                <button type="submit" class="btn btn-primary btn-float-right" formnovalidate>
                     Register
                 </button>
 
-                <br></br>
-
-                <p><a href="https://termsfeed.com/privacy-policy/c455b06cbdd957a654630e5cd5ef93b6">Privacy Policy</a>
-
+                <a href="{{ path('homepage') }}" class ="btn btn-danger btn-float-right">Cancel</a>
 
                 {{ form_end(form) }}
 
             </div>
         </div>
     </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src='https://www.google.com/recaptcha/api.js'></script>
 {% endblock %}

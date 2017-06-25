@@ -24,7 +24,7 @@
                         </a>
                     </li>
                     <li>
-                        <a id="my-bookmarked-items" class="js-toggle-active" href="{{ path('myBookmarks') }}">
+                        <a id="my-bookmarked-items" class="js-toggle-active" href="#">
                             My Bookmarked Items
                             <span class="sr-only">(current)</span>
                         </a>
@@ -51,13 +51,13 @@
             </tr>
             </thead>
             <tbody>
-            {% for itemPost in itemPosts %}
+            {% for bookmark in myBookmarks %}
                 <tr>
-                    <td><a href="{{ path('itempost_delete', {'id': itemPost.id}) }}"><span class="fa fa-close" style="color: red"></span></a></td>
-                    <td><a href="{{ path('itempost_show', { 'id': itemPost.id }) }}">{{ itemPost.name }}</a></td>
-                    <td>${{ itemPost.price|number_format(2) }}</td>
-                    <td>{{ itemPost.postDate|date("m/d/Y") }}</td>
-                    <td>{{ itemPost.category }}</td>
+                    <td><a href="{{ path('removeBookmark', {'id': bookmark.id}) }}"><span class="fa fa-close" style="color: red"></span></a></td>
+                    <td><a href="{{ path('itempost_show', { 'id': bookmark.itemPost.id }) }}">{{ bookmark.itemPost.name }}</a></td>
+                    <td>${{ bookmark.itemPost.price|number_format(2) }}</td>
+                    <td>{{ bookmark.itemPost.postDate|date("m/d/Y") }}</td>
+                    <td>{{ bookmark.itemPost.category }}</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -76,7 +76,7 @@
             $(linkId).parent().addClass('active');
             $(linkId).parent().siblings().removeClass('active');
 
-            var linkId = "my-items-for-sale";
+            var linkId = "#my-bookmarked-items";
             $(linkId).parent().addClass('active');
             $(linkId).parent().siblings().removeClass('active');
         } );

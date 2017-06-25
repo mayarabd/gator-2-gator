@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="container">
+    <div class="container form-container">
         <div class="row">
             <div class="col-xs-12">
-                <h1>Login!</h1>
+                <h1>Login</h1>
 
                 {% if error %}
                     <div class="alert alert-danger">
@@ -15,10 +15,10 @@
                 {{ form_start(form) }}
                 {{ form_row(form._username) }}
                 {{ form_row(form._password) }}
+            &nbsp;   &nbsp;<a class="btn btn-primary btn-float-right" href="{{ path('user_register') }}">Register</a>
+                <button type="submit" class="btn btn-success btn-float-right" formnovalidate>Login <span class="fa fa-lock"></span></button>
 
-                <button type="submit" class="btn btn-success" formnovalidate>Login <span class="fa fa-lock"></span></button>
-                &nbsp;   &nbsp;
-                <a href="{{ path('user_register') }}">Register</a>
+
                 {{ form_end(form) }}
             </div>
         </div>

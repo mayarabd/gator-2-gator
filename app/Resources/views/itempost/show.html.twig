@@ -28,19 +28,31 @@
             </tr>
             <tr>
                 <th>Photo</th>
-                <td>{{ itemPost.photo }}</td>
+                <td>
+                    {% for photo in itemPost.photos %}
+                        <a href="{{ asset(photo.path) }}">
+                            <img class="ItemPostPhoto" src="{{ asset(photo.path) }}" style="width:200px;;border:0;">
+                        </a>
+                    {% endfor %}
+
+                </td>
             </tr>
             </tbody>
         </table>
 
-        <a class="btn btn-primary" href="{{ path('itempost_index') }}">Done</a>
-
         {% if itemPost.user  == app.user  %}
-            <a class="form-link" href="{{ path('itempost_edit', { 'id': itemPost.id }) }}">Edit</a>
+            <a class="btn btn-primary btn-float-right" href="{{ path('itempost_edit', { 'id': itemPost.id }) }}">Edit</a>
+        {% elseif is_granted('ROLE_SUPER_ADMIN')  or is_granted('ROLE_ADMIN') %}
+            <a class="btn btn-danger btn-float-right shrink-to-hide" href="{{ path('itempost_delete', { 'id': itemPost.id}) }}">Delete</a>
+            <a class="btn btn-success btn-float-right" href="{{ path('fos_message_thread_contact_seller', { 'id': itemPost.id }) }}">Contact Seller</a>
+            <a class="btn btn-primary btn-float-right" href="{{ path( 'addBookmark', {'id': itemPost.id }) }}">Bookmark Item</a>
         {% else %}
-            <a class="form-link" href="{{ path('fos_message_thread_contact_seller', { 'id': itemPost.id }) }}">Contact Seller</a>
-            {#<a class="form-link" href="{{ path('fos_message_thread_contact_seller', { 'id': itemPost.id }) }}">Delete</a>#}
+            <a class="btn btn-success btn-float-right" href="{{ path('fos_message_thread_contact_seller', { 'id': itemPost.id }) }}">Contact Seller</a>
+            {% if is_granted('ROLE_USER') %}
+                <a class="btn btn-primary btn-float-right" href="{{ path( 'addBookmark', {'id': itemPost.id }) }}">Bookmark Item</a>
+            {% endif %}
         {% endif %}
+        <a class="btn btn-primary shrink-to-hide" href="{{ path('itempost_index') }}">Back</a>
 
 
     </div>

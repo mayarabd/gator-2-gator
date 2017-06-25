@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\ItemPost;
+use AppBundle\Entity\ItemPostPhoto;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -20,16 +21,30 @@ class ItemPostController extends Controller
      * Lists all itemPost entities.
      *
      * @Route("/", name="itempost_index")
-     * @Method("GET")
+     * @Method({"GET", "POST"})
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
 
-        $itemPosts = $em->getRepository('AppBundle:ItemPost')->findAll();
+        $category = $request->get("category");
+
+        $itemPosts = $em->getRepository('AppBundle:ItemPost')->findAllAndSortByDate();
+
+        $bookmarkArray = [];
+
+        if ($this->isGranted('ROLE_USER')) {
+            $bookmarks = $em->getRepository('AppBundle:ItemBookmark')->findAllBookmarksByUser($this->getUser());
+
+            foreach($bookmarks as $bookmark){
+                $bookmarkArray[] = $bookmark->getItemPost()->getName();
+            }
+        }
 
         return $this->render('itempost/index.html.twig', array(
-            'itemPosts' => $itemPosts
+            'itemPosts' => $itemPosts,
+            'category'=>$category,
+            'bookmarks' => $bookmarkArray
         ));
     }
 
@@ -50,6 +65,25 @@ class ItemPostController extends Controller
             $itemPost = $form->getData();
             $itemPost->setPostDate(new \DateTime());
             $itemPost->setUser($this->getUser());
+
+            //gets files form the form
+            $files = $itemPost->getPhotoList();
+
+            if ($files != null) {
+                foreach($files as $file) {
+                    // Generate a unique name for the file before saving it
+                    $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                    // Move the file to the correct folder
+                    $file->move(
+                        $this->getParameter('upload_destination'),
+                        $fileName
+                    );
+
+                    //stores path to file into database
+                    $itemPost->addPhoto('/images/ItemPostPhotos/' . $fileName);
+                }
+            }
+
             $em->persist($itemPost);
             $em->flush();
 
@@ -69,9 +103,8 @@ class ItemPostController extends Controller
      */
     public function showAction(ItemPost $itemPost)
     {
-
         return $this->render('itempost/show.html.twig', array(
-            'itemPost' => $itemPost
+            'itemPost' => $itemPost,
         ));
     }
 
@@ -90,10 +123,30 @@ class ItemPostController extends Controller
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
+            $files = $itemPost->getPhotoList();
+
+            if ($files != null) {
+                foreach($files as $file) {
+                    // Generate a unique name for the file before saving it
+                    $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+                    // Move the file to the correct folder
+                    $file->move(
+                        $this->getParameter('upload_destination'),
+                        $fileName
+                    );
+
+                    //stores path to file into database
+                    $itemPost->addPhoto('/images/ItemPostPhotos/' . $fileName);
+                }
+            }
+
             $this->getDoctrine()->getManager()->flush();
 
             return $this->redirectToRoute('itempost_index', array('id' => $itemPost->getId()));
         }
+
+        //refreshes itemPost entity from database to prevent from displaying stale images
+        $this->getDoctrine()->getManager()->refresh($itemPost);
 
         return $this->render('itempost/edit.html.twig', array(
             'itemPost' => $itemPost,
@@ -114,6 +167,34 @@ class ItemPostController extends Controller
         $em->flush();
 
         return $this->redirectToRoute('itempost_index');
+    }
+
+    /**
+     * Removes file from file system
+     * Deletes photo entity
+     *
+     * @Route("/{id}/deletePhoto", name="photo_delete")
+     */
+    public function photoDeleteAction(ItemPostPhoto $itemPostPhoto, Request $request) {
+
+        $this->denyAccessUnlessGranted('edit', $itemPostPhoto->getItemPost());
+
+        //get the photo name
+        $photoName = substr_replace($itemPostPhoto->getPath(), '', 0, 23);
+
+        //builds the absolute path and removes the photo from the file system
+        unlink($this->getParameter('upload_destination') . $photoName);
+
+        //deletes photo entity and removes photo path from the database
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($itemPostPhoto);
+        $em->flush();
+
+        //refreshes the page
+        return $this->redirectToRoute('itempost_edit', array(
+            'id' => $itemPostPhoto->getItemPost()->getId()
+        ));
+
     }
 
 }

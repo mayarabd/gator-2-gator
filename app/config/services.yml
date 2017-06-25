@@ -52,3 +52,9 @@ services:
               '%fos_message.new_thread_form.name%',
               '%fos_message.new_thread_form.model%'
               ]
+
+      app.max_photo_validator:
+          class: AppBundle\Validator\Constraints\MaxPhotoConstraintValidator
+          arguments: ['@doctrine']
+          tags:
+          - { name: validator.constraint_validator }

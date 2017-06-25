@@ -6,7 +6,7 @@
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-collapseable-navbar" aria-expanded="false">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapseable-search-navbar" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -16,17 +16,17 @@
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="main-collapseable-navbar">
+            <div class="collapse navbar-collapse" id="collapseable-search-navbar">
                 <ul class="nav navbar-nav">
                     <li class="dropdown">
                         <a id="selectedCategory" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">Choose a Category <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="#">TV's, Tablets, Entertainment</a></li>
-                            <li><a href="#">Furnishings</a></li>
-                            <li><a href="#">Laptops</a></li>
+                            <li><a id ="Furniture" href="#">Furnishings</a></li>
+                            <li><a id ="Laptops" href="#">Laptops</a></li>
                             <li role="separator" class="divider"></li>
-                            <li><a href="#">Text Books</a></li>
+                            <li><a id ="Textbooks" href="#">Text Books</a></li>
                             <li><a href="#">School Supplies</a></li>
                             <li role="separator" class="divider"></li>
                             <li><a href="#">Tutoring Services</a></li>
@@ -35,9 +35,7 @@
                             <li><a href="#">All Items</a> </li>
                         </ul>
                     </li>
-
                 </ul>
-
 
                 <ul class="nav navbar-nav navbar-right">
                     <li><input type="search" id="searchInputBox" placeholder="Search for Item"/></li>
@@ -54,25 +52,55 @@
         <table id="js-item-post-table" class="table table-responsive">
             <thead>
             <tr>
-                <th></th>
-                <th></th>
+                {% if is_granted('ROLE_USER') %}
+                    <th>Bookmark Item</th>
+                {% else %}
+                    <th></th>
+                {% endif %}
                 <th>Item Name</th>
                 <th>Price</th>
-                <th>Category</th>
+                <th class="shrink-to-hide"></th>
+                <th class="shrink-to-hide">Date Posted</th>
+                <th class="shrink-to-hide">Category</th>
                 <th style="display: none">Description</th>
+                <th></th>
 
             </tr>
             </thead>
+
+            <p id="no-result" hidden>No result found. Please try different keywords.</p>
+
             <tbody>
             {% for itemPost in itemPosts %}
-                <tr class="itemPost" data-category="{{ itemPost.category }}" data-searchable="true">
-                    <td></td>
-                    <td> <a class ="btn btn-primary" href = "{{ path('fos_message_thread_contact_seller', {'id': itemPost.id}) }}" class = "btn btn-info">Contact Seller</a></td>
-                    <td><a id="itemName" href="{{ path('itempost_show', { 'id': itemPost.id }) }}">{{ itemPost.name }}</a></td>
-                    <td>${{ itemPost.price|number_format(2) }}</td>
-                    <td>{{ itemPost.category }}</td>
-                    <td id="itemDescription" style="display: none">{{ itemPost.description }}</td>
-                </tr>
+                {% if itemPost.user == app.user %}
+                    <tr class="itemPost" data-category="{{ itemPost.category }}" data-searchable="true" style="background: rgba(21, 20, 91, 0.1)">
+                        <td style="text-align: center"><a href="{{ path('itempost_delete', {'id': itemPost.id}) }}"><span class="fa fa-close" style="color: red"></span></a></td>
+                {% elseif itemPost.name in bookmarks %}
+                    <tr class="itemPost" data-category="{{ itemPost.category }}" data-searchable="true" style="background: rgba(213, 166, 13, 0.1)">
+                        <td style="text-align: center"><span class="fa fa-check-circle" style="color: green"></span></td>
+                {% else %}
+                    <tr class="itemPost" data-category="{{ itemPost.category }}" data-searchable="true">
+                        {% if is_granted('ROLE_USER') %}
+                            <td style="text-align: center"><a class="js-bookmark" id="{{ itemPost.id }}"><span class="fa fa-bookmark"></span></a></td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                {% endif %}
+
+                        <td><a id="itemName" href="{{ path('itempost_show', { 'id': itemPost.id }) }}">{{ itemPost.name }}</a></td>
+                        <td>${{ itemPost.price|number_format(2) }}</td>
+                        <td class="shrink-to-hide">
+                            <a class ="btn btn-primary" href = "{{ path('fos_message_thread_contact_seller', {'id': itemPost.id}) }}">Contact Seller</a>
+                        </td>
+                        <td class="shrink-to-hide">{{ itemPost.postDate|date("m/d/Y") }}</td>
+                        <td class="shrink-to-hide">{{ itemPost.category }}</td>
+                        <td id="itemDescription" style="display: none">{{ itemPost.description }}</td>
+                        {% if is_granted('ROLE_SUPER_ADMIN')  or is_granted('ROLE_ADMIN') %}
+                            <td><a href="{{ path('itempost_delete', {'id': itemPost.id}) }}"><span class="fa fa-close" style="color: red"></span></a></td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                    </tr>
             {% endfor %}
             </tbody>
         </table>
@@ -86,7 +114,6 @@
     {{ parent() }}
     <script>
         $(document).ready(function() {
-//            document.addEventListener('keypress', )
             var linkId = "#itempost";
             var $table = $('#js-item-post-table');
 
@@ -113,6 +140,26 @@
                 }
             });
 
+            $('.js-bookmark').click(function (e) {
+
+                $(this).children().removeClass('fa-bookmark').addClass('fa-spinner fa-spin');
+                var postId = $(this).attr('id');
+
+                $.post('{{path('addBookmarkAjax')}}',
+                    {itemPostId: postId},
+                    function(response){
+                        if(response.code == 100 && response.success){
+                            $("#" + postId).children().removeClass('fa-spinner fa-spin').addClass('fa-check-circle').css("color", "green");
+                            $("#" + postId).closest('tr').css('background', 'rgba(213, 166, 13, 0.1)');
+                        }
+
+                    }, "json");
+            });
+
+
+            {% if category %}
+                $("#{{ category }}").click();
+            {% endif  %}
 
             $('#searchInputBox').keyup(function (e) {
 
@@ -124,6 +171,7 @@
                 tr = table.getElementsByTagName("tr");
                 termFoundInItemName = false;
                 termFoundInDescription = false;
+                var matchCount = 0;
 
                 category = $('#selectedCategory').text().trim();
                 if (category === "Choose a Category" || category === "All Items") {
@@ -131,6 +179,8 @@
                 }
 
                 if(filter.trim() === "") {
+                    $table.show();
+                    $('#no-result').hide();
                     $('tr.itemPost').each(function () {
                         if (category === 'all' || $(this).data('category') === category) {
                             $(this).show();
@@ -140,7 +190,7 @@
                     i=1;
                     $('tr.itemPost').each(function () {
                         var td_name = tr[i].getElementsByTagName("td")[1];
-                        var td_description = tr[i].getElementsByTagName("td")[4];
+                        var td_description = tr[i].getElementsByTagName("td")[6];
 
                         td_name = $(td_name).text();
                         td_description = $(td_description).text();
@@ -149,12 +199,13 @@
                             if (td_name) {
                                 if (td_name.toLowerCase().search(filter) > -1) {
                                     termFoundInItemName = true;
+                                    matchCount++;
                                 } else {
-
                                     termFoundInItemName = false;
                                 }
                                 if (td_description.toLowerCase().search(filter) > -1) {
                                     termFoundInDescription = true;
+                                    matchCount++;
                                 } else {
                                     termFoundInDescription = false;
                                 }
@@ -167,26 +218,36 @@
                             }
                         }
                         i++;
+
+                        if(matchCount === 0){
+                            $table.hide();
+                            $('#no-result').show();
+                        }
+                        else{
+                            $table.show();
+                            $('#no-result').hide();
+                        }
                     });
                 } else{
                     i=1;
                     $('tr.itemPost').each(function () {
                         var td_name = tr[i].getElementsByTagName("td")[1];
-                        var td_description = tr[i].getElementsByTagName("td")[4];
+                        var td_description = tr[i].getElementsByTagName("td")[6];
 
                         td_name = $(td_name).text();
                         td_description = $(td_description).text();
 
-                        if($(this).is(":visible")) {
+                        if(category === 'all' || $(this).data('category') === category) {
                             if (td_name) {
                                 if (td_name.toLowerCase().search(filter) > -1) {
                                     termFoundInItemName = true;
+                                    matchCount++;
                                 } else {
-
                                     termFoundInItemName = false;
                                 }
                                 if (td_description.toLowerCase().search(filter) > -1) {
                                     termFoundInDescription = true;
+                                    matchCount++;
                                 } else {
                                     termFoundInDescription = false;
                                 }
@@ -199,6 +260,15 @@
                             }
                         }
                         i++;
+
+                        if(matchCount === 0){
+                            $table.hide();
+                            $('#no-result').show();
+                        }
+                        else{
+                            $table.show();
+                            $('#no-result').hide();
+                        }
                     });
                 }
             });

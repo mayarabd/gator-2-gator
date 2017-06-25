@@ -15,3 +15,8 @@
 /vendor/
 /web/bundles/
 /.idea
+/web/images/ItemPostPhotos/*.jpeg
+/web/images/ItemPostPhotos/*.png
+/web/images/ItemPostPhotos/*.gif
+/web/images/ItemPostPhotos/*.jpg
+.DS_Store

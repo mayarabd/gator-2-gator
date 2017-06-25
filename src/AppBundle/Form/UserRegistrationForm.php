@@ -22,7 +22,7 @@ class UserRegistrationForm extends AbstractType
             ->add('email', EmailType::class)
             ->add('username', TextType::class)
             ->add('plainPassword', RepeatedType::class, ['type' => PasswordType::class])
-            ->add('termsAccepted', CheckboxType::class, array(
+            ->add('IHaveReadAndAcceptTheTermsOfService', CheckboxType::class, array(
         'mapped' => false,
         'constraints' => new IsTrue(),));
 

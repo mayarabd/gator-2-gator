@@ -1,15 +1,35 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="container">
+    <div class="container form-container">
         <h1>{{ itemPost.name }}</h1>
 
         {{ form_start(edit_form) }}
         {{ form_widget(edit_form) }}
-        <button type="submit" class="btn btn-primary" formnovalidate>Submit</button>
-        <a class="form-link" href="{{ path('itempost_delete', { 'id': itemPost.id }) }}">Delete</a>
         {{ form_end(edit_form) }}
+        <hr>
+        <h3>Manage Photos</h3>
+        <div>
+            {% for photo in itemPost.photos %}
+                <span class="pdf-thumb-box">
+                    <a href= "{{ path('photo_delete', {'id': photo.id}) }}">
+                        <span class="pdf-thumb-box-overlay">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-trash-o fa-stack-1x pdf-thumb-eye"></i>
+                            </span>
+                        </span>
+                        <img class="img-responsive" src="{{ asset(photo.path) }}" style="width:200px;border:0;">
+                    </a>
+                </span>
 
+                <span class="vertical-social-box"></span>
+        {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-float-right" formnovalidate>Submit</button>
+        <a class="btn btn-danger btn-float-right" href="{{ path('itempost_delete', { 'id': itemPost.id }) }}">Delete</a>
+
+        <br>
 {% endblock %}
 
 {% block javascripts %}

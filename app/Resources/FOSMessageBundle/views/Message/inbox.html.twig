@@ -2,8 +2,11 @@
 
 {% block body %}
     <div class="container">
-        <h2>{% trans from 'FOSMessageBundle' %}inbox{% endtrans %}</h2>
-        {% include 'FOSMessageBundle:Message:threads_list.html.twig' with {'threads': threads} %}
+        <h2>{% trans from 'FOSMessageBundle' %}Inbox{% endtrans %}</h2>
+        <div class="container message-container">
+            {% include 'FOSMessageBundle:Message:threads_list.html.twig' with {'threads': threads} %}
+        </div>
+
     </div>
 {% endblock %}
 

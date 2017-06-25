@@ -12,6 +12,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\ItemPost;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 class MessageControllerExtension extends Controller
 {
     /**
+     * @Security("is_granted('ROLE_USER')")
      * @Route("/fos_message/new/{id}", name="fos_message_thread_contact_seller")
      */
     public function contactSellerAction(ItemPost $itemPost){

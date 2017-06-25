@@ -3,15 +3,23 @@
 {% block body %}
     <div class="container">
 
-        <h2>{% trans from 'FOSMessageBundle' %}send_new{% endtrans %}</h2>
+        <h2>{% trans from 'FOSMessageBundle' %}Compose Message{% endtrans %}</h2>
 
-        <form action="{{ url('fos_message_thread_new') }}" method="post">
-            {{ form_widget(form) }}
+        <div class="container message-container">
+            <form action="{{ url('fos_message_thread_new') }}" method="post">
+                {{ form_widget(form) }}
 
-            <button type="submit" class="btn btn-primary" formnovalidate>
-                Send
-            </button>
-        </form>
+                <button type="submit" class="btn btn-primary btn-float-right" formnovalidate)>
+                    Send
+                </button>
+
+                <a class="btn btn-danger btn-float-right" href="{{ path('itempost_index') }}">
+                    Cancel
+                </a>
+
+            </form>
+        </div>
+
     </div>
 {% endblock %}
 

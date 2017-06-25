@@ -18,16 +18,17 @@ class NewThreadMessageFormType extends AbstractType
     {
         $builder
             ->add('recipient', UsernameFormType::class, array(
-                'label' => 'recipient',
-                'translation_domain' => 'FOSMessageBundle',
+                'label' => 'Recipient',
+                'translation_domain' => 'FOSMessageBundle'
             ))
             ->add('subject', TextType::class, array(
-                'label' => 'subject',
+                'label' => 'Subject',
                 'translation_domain' => 'FOSMessageBundle',
             ))
             ->add('body', TextareaType::class, array(
-                'label' => 'body',
+                'label' => 'Body',
                 'translation_domain' => 'FOSMessageBundle',
+                'attr' => array('style' => 'height: 200px')
             ));
     }
 

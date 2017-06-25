@@ -14,21 +14,29 @@
                 </tr>
             </thead>
             {% for user in users %}
-                {% if user.roles|length > 1 %}
+                {% if 'ROLE_ADMIN' in user.roles or 'ROLE_SUPER_ADMIN' in user.roles %}
                     <tr>
-                        <td><a href="{{ path('delete_user', {'id': user.id}) }}"><span class="fa fa-close" style="color: red"></span></a></td>
-                        <td><a href="#">{{ user.username }}</a></td>
-                        <td><a href="#">{{ user.email }}</a></td>
-                        <td>Admin</td>
-                        <td><a href="{{ path('demote_user', {'id': user.id}) }}">
-                                <span class="fa fa-hand-o-down"></span> demote </a>
-                        </td>
+                        {% if 'ROLE_SUPER_ADMIN' in user.roles %}
+                            <td></td>
+                            <td><a href="#">{{ user.username }}</a></td>
+                            <td><a href="#">{{ user.email }}</a></td>
+                            <td> Super Admin</td>
+                            <td></td>
+                        {% else %}
+                            <td><a href="{{ path('delete_user', {'id': user.id}) }}"><span class="fa fa-close" style="color: red"></span></a></td>
+                            <td><a href="#">{{ user.username }}</a></td>
+                            <td><a href="#">{{ user.email }}</a></td>
+                            <td>Admin</td>
+                            <td><a href="{{ path('demote_user', {'id': user.id}) }}">
+                                    <span class="fa fa-hand-o-down"></span> demote </a>
+                            </td>
+                        {% endif %}
                     </tr>
                 {% else %}
                     <tr>
                         <td><a href="{{ path('delete_user', {'id': user.id}) }}"><span class="fa fa-close" style="color: red"></span></a></td>
-                        <td><a href="#">{{ user.username }}</a></td>
-                        <td><a href="#">{{ user.email }}</a></td>
+                        <td><a href="{{ path('list_posts_by_user', {'id': user.id}) }}">{{ user.username }}</a></td>
+                        <td><a href="{{ path('list_posts_by_user', {'id': user.id}) }}">{{ user.email }}</a></td>
                         <td>User</td>
                         <td><a href="{{ path('promote_user', {'id': user.id}) }}"><span class="fa fa-hand-o-up"></span> promote </a></td>
                     </tr>

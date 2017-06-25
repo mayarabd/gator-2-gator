@@ -9,11 +9,13 @@
 
 namespace AppBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\MessageBundle\Model\ParticipantInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use AppBundle\Validator\Constraints as SFSUEmailConstraint;
 
 /**
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
@@ -40,6 +42,7 @@ class User implements UserInterface, ParticipantInterface
     /**
      * @Assert\NotBlank()
      * @Assert\Email()
+     * @SFSUEmailConstraint\ContainsSfsuEmail
      * @ORM\Column(type="string", unique=true)
      */
     private $email;
@@ -64,6 +67,15 @@ class User implements UserInterface, ParticipantInterface
      */
     private $itemposts;
 
+    /**
+     * @ORM\OneToMany(targetEntity="ItemBookmark", mappedBy="user", orphanRemoval=true)
+     */
+    private $bookmarks;
+
+    public function __construct()
+    {
+        $this->bookmarks = new ArrayCollection();
+    }
 
     public function getId()
     {
@@ -167,6 +179,30 @@ class User implements UserInterface, ParticipantInterface
     {
         $this->plainPassword = $plainPassword;
         $this->password = null;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getItemposts()
+    {
+        return $this->itemposts;
+    }
+
+    /**
+     * @param mixed $itemposts
+     */
+    public function setItemposts($itemposts)
+    {
+        $this->itemposts = $itemposts;
+    }
+
+    /**
+     * @return ArrayCollection|ItemBookmark[]
+     */
+    public function getBookmarks()
+    {
+        return $this->bookmarks;
     }
 
     function __toString()

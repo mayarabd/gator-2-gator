@@ -2,10 +2,10 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Validator\Constraints as MaxPhotoConstraint;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-
 use Symfony\Component\Validator\Constraints as Assert;
-use AppBundle\Entity\User;
 
 /**
  * ItemPost
@@ -28,6 +28,11 @@ class ItemPost
      * @ORM\ManyToOne(targetEntity="User", inversedBy="itemposts")
      */
     private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity="ItemBookmark", mappedBy="itemPost", orphanRemoval=true)
+     */
+    private $bookmarks;
 
     /**
      * @var string
@@ -69,11 +74,59 @@ class ItemPost
     private $postDate;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="photo", type="string", length=255, nullable=true)
+     * @ORM\OneToMany(targetEntity="ItemPostPhoto", mappedBy="itemPost", cascade={"all"})
      */
-    private $photo;
+    private $photos;
+
+    /**
+     * @Assert\All({
+     *     @Assert\Image(
+     *     maxSize = "10M",
+     *     maxSizeMessage = "Image is too large. Maximum allowed size is 10M")
+     * })
+     * @MaxPhotoConstraint\MaxPhotoConstraint
+     */
+    private $photoList;
+
+    public function __construct()
+    {
+        $this->photos = new ArrayCollection();
+        $this->photoList = new ArrayCollection();
+        $this->bookmarks = new ArrayCollection();
+    }
+
+    /**
+     * @return ArrayCollection|ItemBookmark[]
+     */
+    public function getBookmarks()
+    {
+        return $this->bookmarks;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhotos()
+    {
+        return $this->photos;
+    }
+
+    /**
+     * Get photo list
+     * @return mixed
+     */
+    public function getPhotoList()
+    {
+        return $this->photoList;
+    }
+
+    /** Set photos
+     * @param $photoList
+     */
+    public function setPhotoList($photoList)
+    {
+        $this->photoList = $photoList;
+    }
 
 
     /**
@@ -214,6 +267,7 @@ class ItemPost
         return $this;
     }
 
+
     /**
      * Get postDate
      *
@@ -225,26 +279,12 @@ class ItemPost
     }
 
     /**
-     * Set photo
-     *
-     * @param string $photo
-     *
-     * @return ItemPost
+     * a path to photo, itempost object
+     * @param $path String
      */
-    public function setPhoto($photo)
-    {
-        $this->photo = $photo;
+    public function addPhoto($path) {
+        $photo = new ItemPostPhoto($path, $this);
+        $this->photos->add($photo);
 
-        return $this;
-    }
-
-    /**
-     * Get photo
-     *
-     * @return string
-     */
-    public function getPhoto()
-    {
-        return $this->photo;
     }
 }

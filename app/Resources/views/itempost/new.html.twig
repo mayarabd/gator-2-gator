@@ -1,15 +1,15 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="container">
-        <h1>Post new item to sell!</h1>
+    <div class="container form-container">
+        <h1>Post new item to sell</h1>
 
         {{ form_start(form) }}
         {{ form_widget(form) }}
-        <a class="form-link" href="{{ path('itempost_index') }}">Cancel</a>
-        <button type="submit" class="btn btn-primary" formnovalidate>
-            Create Listing
+        <button type="submit" class="btn btn-primary btn-float-right"  formnovalidate>
+            Create Item
         </button>
+        <a class="btn btn-danger btn-float-right" href="{{ path('itempost_index') }}">Cancel</a>
         {{ form_end(form) }}
     </div>
 {% endblock %}
