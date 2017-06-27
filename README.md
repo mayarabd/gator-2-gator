@@ -1,6 +1,19 @@
-classProject
-============
+# Gator 2 Gator
 
-A Symfony project created on February 13, 2017, 12:55 pm.
+A Web Application for SFSU students to buy and sell items.
 
-<a href="https://zenhub.com"><img src="https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png"></a>
+
+## Technologies
+* PHP
+* Symfony
+* MySQL
+* AWS server
+
+## Collaborators 
+* Andrew Lesondak
+* Tim Bauer
+* David Rodriguez
+* James Lee
+* Mayara Dusheyko
+* Chengjiu Hong
+* Jeffrey Hu
